@@ -9,7 +9,7 @@ const uploadToCloudinary = async (filePath) => {
       publicId: result.public_id,
     };
   } catch (e) {
-    console.error("Error while uploading to cloudinary", error);
+    console.error("Error while uploading to cloudinary", e);
     throw new Error("Error while uploading to cloudinary");
   }
 };

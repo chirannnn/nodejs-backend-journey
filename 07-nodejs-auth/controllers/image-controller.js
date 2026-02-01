@@ -1,5 +1,6 @@
 const Image = require("../models/Image");
-const uploadToCloudinary = require("../helpers/cloudinaryHelper");
+const { uploadToCloudinary } = require("../helpers/cloudinaryHelper");
+const fs = require("fs");
 
 const uploadImageController = async (req, res) => {
   try {
@@ -17,10 +18,13 @@ const uploadImageController = async (req, res) => {
     const newlyUploadedImage = new Image({
       url,
       publicId,
-      uploadedBy: req.UserInfo.userId,
+      uploadedBy: req.userInfo.userId,
     });
 
     await newlyUploadedImage.save();
+
+    //delete the file from local stroage
+    // fs.unlinkSync(req.file.path);
 
     res.status(201).json({
       success: true,
@@ -36,4 +40,23 @@ const uploadImageController = async (req, res) => {
   }
 };
 
-module.exports = { uploadImageController };
+const fetchImagesController = async (req, res) => {
+  try {
+    const images = await Image.find({});
+
+    if (images) {
+      res.status(200).json({
+        success: true,
+        images: images,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong! Please try again",
+    });
+  }
+};
+
+module.exports = { uploadImageController, fetchImagesController };
