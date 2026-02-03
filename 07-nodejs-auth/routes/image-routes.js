@@ -5,6 +5,7 @@ const uploadMiddleware = require("../middleware/uploadMiddleware");
 const {
   uploadImageController,
   fetchImagesController,
+  deleteImageController,
 } = require("../controllers/image-controller");
 
 const router = express.Router();
@@ -20,5 +21,13 @@ router.post(
 
 //to get all the image
 router.get("/get", authMiddleware, fetchImagesController);
+
+// delete image route
+router.delete(
+  "/delete/:id",
+  authMiddleware,
+  adminMiddleware,
+  deleteImageController,
+);
 
 module.exports = router;
