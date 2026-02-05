@@ -1,0 +1,18 @@
+require("dotenv").config();
+const express = require("express");
+const connectToDB = require("./database/db");
+const productRoutes = require("./routes/product-routes");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+connectToDB();
+
+// use middleware
+app.use(express.json());
+
+app.use("/products", productRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Server is now running one PORT ${PORT}`);
+});
