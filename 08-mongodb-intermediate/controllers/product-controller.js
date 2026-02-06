@@ -1,5 +1,96 @@
 const Product = require("../models/Product");
 
+const getProductStats = async (req, res) => {
+  try {
+    const result = await Product.aggregate([
+      //stage 1
+      {
+        $match: {
+          inStock: true,
+          price: {
+            $gte: 100,
+          },
+        },
+      },
+      //stage 2 : group documents
+      {
+        $group: {
+          _id: "$category",
+          avgPrice: {
+            $avg: "$price",
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Some error occured",
+    });
+  }
+};
+
+const getProductAnalysis = async (req, res) => {
+  try {
+    const result = await Product.aggregate([
+      {
+        $match: {
+          category: "Electronics",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          prductSum: {
+            $sum: "$price",
+          },
+          prductAverage: {
+            $avg: "$price",
+          },
+          prductMax: {
+            $max: "$price",
+          },
+          prductMin: {
+            $min: "$price",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          prductSum: 1,
+          prductAverage: 1,
+          prductMax: 1,
+          prductMin: 1,
+          priceRange: {
+            $subtract: ["$prductMax", "$prductMin"],
+          },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Some error occured",
+    });
+  }
+};
+
 const insertSampleProducts = async (req, res) => {
   try {
     const sampleProducts = [
@@ -55,4 +146,4 @@ const insertSampleProducts = async (req, res) => {
   }
 };
 
-module.exports = { insertSampleProducts };
+module.exports = { insertSampleProducts, getProductStats, getProductAnalysis };
